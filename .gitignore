@@ -10,3 +10,6 @@ dist/
 .env.test
 .env.**.local
 .coverage
+.python-version
+
+____*/

@@ -1,10 +1,14 @@
+"""Tests setup configuration."""
+
+from typing import Iterator
+
 import pytest
 from dotenv import load_dotenv
 
 
 @pytest.fixture(autouse=True)
-def run_before_and_after_tests():
+def setup() -> Iterator[None]:
     """Load test environment variables"""
-    load_dotenv(".env.test", override=True)
+    load_dotenv(".env.example", override=True)
 
     yield

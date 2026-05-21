@@ -1,4 +1,7 @@
-"""Date module."""
+"""Date module.
+
+depends_on: whenever
+"""
 
 from .date import as_naive, offset_to_naive_utc
 

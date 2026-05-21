@@ -4,7 +4,7 @@ infra:
 
 # Unit testing with coverage report
 cov:
-	pytest tests/ --cov --cov-report term-missing
+	pytest tests/ --cov --cov-report term-missing --cov-fail-under=100
 
 # Integration testing
 it:

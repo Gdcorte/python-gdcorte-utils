@@ -16,10 +16,12 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 readme = "README.md"
-dependencies = []
+dependencies = [
+]
 
 [dependency-groups]
 dev = [
+    "fastapi>=0.136.1",
     "psycopg>=3.3.4",
     "python-dotenv>=1.2.2",
     "whenever>=0.10.0",

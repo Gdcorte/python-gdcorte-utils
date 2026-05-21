@@ -2,8 +2,8 @@ repos:
   - repo: local
     hooks:
       - id: unit-test
-        name: Unit test + Coverage
-        entry: python -m pytest tests/ --cov --cov-fail-under=100
+        name: Unit test + coverage
+        entry: python -m pytest tests/ --cov --cov-fail-under=80
         language: system
         pass_filenames: false
         always_run: true

@@ -16,19 +16,12 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 readme = "README.md"
-dependencies = [
-]
+dependencies = []
 
 [dependency-groups]
 dev = [
-    "boto3>=1.43.33",
-    "fastapi>=0.136.1",
-    "httpx>=0.28.1",
-    "mypy-boto3>=1.43.0",
-    "psycopg[pool]>=3.3.4",
-    "pydantic-settings>=2.14.1",
+    "psycopg>=3.3.4",
     "python-dotenv>=1.2.2",
-    "types-boto3[full]>=1.43.33",
     "whenever>=0.10.0",
 ]
 linter = [
@@ -69,7 +62,6 @@ convention = "numpy"
 
 [tool.pylint]
 load-plugins = "pylint_pydantic"
-max-args = 12
 
 [tool.pylint.reports]
 reports = false
@@ -78,23 +70,11 @@ score = false
 [tool.pylint.messages_control]
 disable = [
     "fixme",
-    "line-too-long",
-    "invalid-overridden-method",
-    "too-few-public-methods",
-    "too-many-ancestors"
 ]
 
 [tool.pylint.similarities]
 min-similarity-lines = 20
 ignore-imports = "yes"
-
-[tool.pyright]
-venvPath = "."
-venv = ".venv"
-typeCheckingMode = "strict"
-include = ["src", "tests", "integration"]
-reportPrivateUsage = "error"
-reportCallIssue = "none"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

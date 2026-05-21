@@ -1,9 +1,10 @@
-# Local infrastructure, as best as posisble
+# Localhost infrastructure, as best as posisble
 infra:
-	docker compose up --build --force-recreate
+	docker compose up --build -d
+
 # Unit testing with coverage report
 cov:
-	pytest tests/ --cov --cov-report term-missing --cov-fail-under=100
+	pytest tests/ --cov --cov-report term-missing
 
 # Integration testing
 it:

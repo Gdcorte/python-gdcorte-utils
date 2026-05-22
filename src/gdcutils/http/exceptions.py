@@ -25,11 +25,16 @@ class _ErrDetails(BaseModel):
 
 
 class Error(BaseModel):
-    """Standard error structured model (for logging/serialization)."""
+    """Summarized error for application i18n."""
 
     status: int
     code: str
     group: str
+
+
+class FullError(Error):
+    """Standard error structured model (for logging/serialization)."""
+
     log: str | None = None
     details: _ErrDetails | None = None
     ctx: _ErrCtx | None = None
@@ -65,7 +70,7 @@ class HttpBaseExcKwargs(TypedDict, total=False):
 class HttpBaseException(Exception):
     """Root level exception fine-tuned for HTTP responses."""
 
-    err: Error
+    err: FullError
     msg: str
 
     def __init__(
@@ -81,19 +86,19 @@ class HttpBaseException(Exception):
     ) -> None:
         self.msg = user_msg or "An unknown error happened, please try again later."
 
-        self.err = Error(
+        self.err = FullError(
             log=log_msg,
             status=status,
             code=err_code,
             group=err_group,
-            details=err_details,
-            ctx=err_ctx,
+            details=_ErrDetails.model_validate(err_details) if err_details else None,
+            ctx=_ErrCtx.model_validate(err_ctx) if err_ctx else None,
         )
 
         super().__init__(log_msg)
 
 
-def to_http_exc(exc: Exception, **kwargs: Unpack[HttpBaseExcKwargs]) -> HttpBaseException:
+def to_http_exc(exc: BaseException, **kwargs: Unpack[HttpBaseExcKwargs]) -> HttpBaseException:
     """Converts a generic exception to an HttpBaseException.
 
     Parameters
@@ -112,6 +117,7 @@ def to_http_exc(exc: Exception, **kwargs: Unpack[HttpBaseExcKwargs]) -> HttpBase
         err_details["cause"] = str(exc)
 
     kwargs["err_details"] = err_details
+    kwargs.setdefault("log_msg", str(exc))
 
     http_exc = HttpBaseException(**kwargs)
     http_exc.__cause__ = exc  # Manual linking

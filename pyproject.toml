@@ -23,6 +23,7 @@ dependencies = [
 dev = [
     "fastapi>=0.136.1",
     "psycopg>=3.3.4",
+    "pydantic-settings>=2.14.1",
     "python-dotenv>=1.2.2",
     "whenever>=0.10.0",
 ]
@@ -64,6 +65,7 @@ convention = "numpy"
 
 [tool.pylint]
 load-plugins = "pylint_pydantic"
+max-args = 12
 
 [tool.pylint.reports]
 reports = false
@@ -77,6 +79,14 @@ disable = [
 [tool.pylint.similarities]
 min-similarity-lines = 20
 ignore-imports = "yes"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+typeCheckingMode = "strict"
+include = ["src", "tests", "integration"]
+reportPrivateUsage = "error"
+reportCallIssue = "none"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

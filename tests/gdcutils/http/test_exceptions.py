@@ -23,4 +23,5 @@ def test_exc_conversion_preserves_messages() -> None:
     custom = to_http_exc(original_exc, err_details={"why": "not on my watch!"})
 
     assert custom.err.details
+    assert custom.err.details.cause
     assert original_msg in custom.err.details.cause

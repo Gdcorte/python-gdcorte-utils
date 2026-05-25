@@ -8,7 +8,7 @@ from typing import Any, TypedDict
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from whenever import Instant
 
-from gdcutils.http.exceptions import HttpBaseException, to_http_exc
+from gdcutils.http.exceptions import to_http_exc
 
 
 class LogSettings(BaseSettings):
@@ -77,8 +77,8 @@ class JsonFormatter(logging.Formatter):
                     )
                 )
 
-            if not isinstance(exc_value, HttpBaseException):
-                exc_value = to_http_exc(exc=exc_value)
+            # Just a small supercharging here.
+            exc_value = to_http_exc(exc=exc_value)
 
             err_data: ErrLogMessage = {
                 **log_data,

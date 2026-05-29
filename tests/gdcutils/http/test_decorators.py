@@ -2,12 +2,14 @@
 
 from collections.abc import AsyncIterable
 from typing import Any
+from urllib.parse import quote_plus
 
 from fastapi import FastAPI, status
+from fastapi.responses import RedirectResponse
 from fastapi.sse import EventSourceResponse, ServerSentEvent
 from fastapi.testclient import TestClient
 
-from gdcutils.http.decorators import treat_http_errors, treat_stream_errors
+from gdcutils.http.decorators import RedirectCtx, treat_http_errors, treat_redirect_errors, treat_stream_errors
 from gdcutils.http.exceptions import HttpBaseException
 
 
@@ -65,3 +67,80 @@ async def test_stream_decorator_works_as_expected() -> None:
         assert full_response[0].startswith("data: ")
         assert full_response[1].startswith("event: custom")
         assert full_response[2].startswith("event: error")
+
+
+async def test_redirect_decorator_works_as_expected() -> None:
+    """Test redirect endpoints will not leak exception outside the route."""
+    err_status = status.HTTP_410_GONE
+    my_origin = "https://my.origin.gin"
+    my_path = "/a/b/c/d"
+    app = FastAPI()
+
+    @app.get("/", response_class=RedirectResponse)
+    @treat_redirect_errors
+    async def my_redirect_root(  # pyright: ignore[reportUnusedFunction]
+        origin: str = my_origin,
+        path: str = my_path,
+    ) -> RedirectResponse:
+        """Testing function"""
+
+        # This will end the transmission, but will send one last event with the error before
+        # gracefully stopping
+        raise HttpBaseException(status=err_status, user_msg="oh la la")
+
+    client = TestClient(app=app)
+    response = client.get("/", follow_redirects=False)
+
+    location: str | None = response.headers.get("location")
+    assert response.status_code < 400
+
+    assert location
+    assert "client_id" not in location
+    assert "code_challenge" not in location
+    assert "code_challenge_method" not in location
+    assert "err" in location
+    assert my_path in location
+    assert my_origin in location
+    assert str(err_status) in location
+
+
+async def test_redirect_decorator_preserve_query_on_error() -> None:
+    """Test redirect endpoints will not discard Oauth2.1 query parameters."""
+    err_status = status.HTTP_425_TOO_EARLY
+    my_origin = "https://my.origin.gin"
+    app = FastAPI()
+
+    query = RedirectCtx(
+        client_id="Blanka",
+        code_challenge="HERE COMES A NEW CHALLENGER",
+        code_challenge_method="Pressed Start",
+    )
+
+    @app.get("/", response_class=RedirectResponse)
+    @treat_redirect_errors
+    async def my_redirect_root(  # pyright: ignore[reportUnusedFunction]
+        origin: str = my_origin,
+        query: dict[str, Any] = query.model_dump(),
+    ) -> RedirectResponse:
+        """Testing function"""
+
+        # This will end the transmission, but will send one last event with the error before
+        # gracefully stopping
+        raise HttpBaseException(status=err_status, user_msg="oh la la")
+
+    client = TestClient(app=app)
+    response = client.get("/", follow_redirects=False)
+
+    location: str | None = response.headers.get("location")
+    assert response.status_code < 400
+
+    assert location
+
+    assert query.client_id
+    assert query.client_id in location
+
+    assert query.code_challenge
+    assert quote_plus(query.code_challenge) in location
+
+    assert query.code_challenge_method
+    assert quote_plus(query.code_challenge_method) in location

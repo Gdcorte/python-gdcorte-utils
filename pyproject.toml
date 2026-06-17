@@ -23,7 +23,7 @@ dependencies = [
 dev = [
     "fastapi>=0.136.1",
     "httpx>=0.28.1",
-    "psycopg>=3.3.4",
+    "psycopg[pool]>=3.3.4",
     "pydantic-settings>=2.14.1",
     "python-dotenv>=1.2.2",
     "whenever>=0.10.0",
@@ -75,7 +75,10 @@ score = false
 [tool.pylint.messages_control]
 disable = [
     "fixme",
-    "line-too-long"
+    "line-too-long",
+    "invalid-overridden-method",
+    "too-few-public-methods",
+    "too-many-ancestors"
 ]
 
 [tool.pylint.similarities]

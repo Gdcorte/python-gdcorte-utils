@@ -192,7 +192,6 @@ class ErrorRedirectCtx(BaseModel):
         -------
             Serialized model fields onto a httpx.URL structure
         """
-        # TODO: docstrings
         url_params = self.query.model_dump(exclude_none=True) if self.query else None
 
         return URL(

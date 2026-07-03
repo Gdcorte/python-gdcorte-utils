@@ -21,11 +21,14 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "boto3>=1.43.33",
     "fastapi>=0.136.1",
     "httpx>=0.28.1",
+    "mypy-boto3>=1.43.0",
     "psycopg[pool]>=3.3.4",
     "pydantic-settings>=2.14.1",
     "python-dotenv>=1.2.2",
+    "types-boto3[full]>=1.43.33",
     "whenever>=0.10.0",
 ]
 linter = [

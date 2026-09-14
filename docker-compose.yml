@@ -1,59 +1,64 @@
 version: "1"
 
 services:
-  mysqltest:
-    env_file:
-      - .env
-    image: mysql:8.0
-    restart: always
-    command: --default-authentication-plugin=mysql_native_password
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DB}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    ports:
-      - "${MYSQL_PORT}:3306"
-
-  mongotest:
-    env_file:
-      - .env
-    image: mongo:focal
+  postgres:
+    image: postgres:18.1
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
     networks:
-      - mongo-test-compose-network
+      - postgres-network
     ports:
-      - "${MONGO_PORT}:27017"
+      - ${PG_PORT}:5432
 
-  mysqladminertest:
-    image: adminer
-    container_name: sql-test-webview
+  adminer:
+    image: adminer:5.4.1
     restart: always
     environment:
-      ADMINER_DEFAULT_SERVER: mysqltest
+      ADMINER_DEFAULT_SERVER: postgres
     ports:
-      - 3530:8080
-    depends_on:
-      - mysqltest
-
-  mongoexpresstest:
-    image: mongo-express
-    container_name: mongo-test-webview
-    restart: always
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD}
-      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongotest:27017/
+      - ${ADMINER_PORT}:8080
     networks:
-      - mongo-test-compose-network
-    ports:
-      - 3531:8081
+      - postgres-network
     depends_on:
-      - mongotest
+      - postgres
+
+
+  # mongotest:
+  #   env_file:
+  #     - .env
+  #   image: mongo:focal
+  #   restart: always
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
+  #     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+  #   networks:
+  #     - mongo-network
+  #   ports:
+  #     - "${MONGO_PORT}:27017"
+
+  
+
+  # mongoexpresstest:
+  #   image: mongo-express
+  #   container_name: mongo-test-webview
+  #   restart: always
+  #   environment:
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASSWORD}
+  #     ME_CONFIG_MONGODB_URL: mongodb://${MONGO_USER}:${MONGO_PASSWORD}@mongotest:27017/
+  #   networks:
+  #     - mongo-network
+  #   ports:
+  #     - 3531:8081
+  #   depends_on:
+  #     - mongotest
 
 networks:
-  mongo-test-compose-network:
+  postgres-network:
+    driver: bridge
+
+  mongo-network:
     driver: bridge

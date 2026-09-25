@@ -43,6 +43,6 @@ class PgConstraintViolation(PgBaseError):
 
         kwargs.setdefault("err_group", "pg_db_integrity_error")
         kwargs.setdefault("err_code", code)
-        kwargs.setdefault("log_msg", str(exc.diag))
+        kwargs.setdefault("log_msg", str(exc))
 
         super().__init__(exc, **kwargs)

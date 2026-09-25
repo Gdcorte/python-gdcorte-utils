@@ -22,7 +22,7 @@ jobs:
 
       - name: Create Tag
         run: |
-          tagVersion=v$(cat package.json | jq '.version' -r)
+          tagVersion=v$(python3 -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
           git config user.name "auto-publisher"
           git tag $tagVersion
           git push --tags
@@ -33,9 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/<your-package-name>
-    permissions:
-      id-token: write # MANDATORY for Trusted Publishing / OIDC
+      url: https://pypi.org/p/gdcutils
 
     steps:
       - name: Checkout repository
@@ -47,12 +45,15 @@ jobs:
           python-version: "3.14"
 
       - name: Install uv
-        run: |
-          python -m pip install --upgrade pip
-          pip install build
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+
+      - name: prepare deps
+        run: uv sync --all-groups --all-extras
 
       - name: Build distribution package
-        run: python -m build
+        run: uv build
 
       - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        run: uv publish --trusted-publishing always
